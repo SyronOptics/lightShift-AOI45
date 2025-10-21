@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Light Shift at 45° AOI</title>
+    <style>
+        /* Container sized to fit an 800px-wide iframe */
+        .app-container { width: 800px; margin: 0 auto; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color: #111; }
+        .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+        .control-group { display: flex; align-items: center; gap: 8px; }
+        .control-group input[type="number"] { width: 90px; }
+        .result { margin: 6px 0 12px 0; font-weight: 600; }
+        canvas { display: block; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
+        .hint { color: #555; font-size: 12px; }
+        .spacer { flex: 1 1 auto; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h2>Light Shift at 45° AOI</h2>
+        <div class="controls">
+            <div class="control-group">
+                <label for="ri">Refractive index n:</label>
+                <input id="ri" type="range" min="1.0" max="2.5" step="0.001" value="1.5">
+                <input id="riNumber" type="number" min="1.0" max="2.5" step="0.001" value="1.5">
+            </div>
+            <div class="control-group">
+                <label for="thickness">Thickness (mm):</label>
+                <input id="thickness" type="range" min="0" max="50" step="0.1" value="10">
+                <input id="thicknessNumber" type="number" min="0" max="200" step="0.1" value="10">
+            </div>
+            <div class="spacer"></div>
+            <div class="control-group">
+                <label for="scale">Scale (px/mm):</label>
+                <input id="scale" type="number" min="1" max="20" step="1" value="6">
+            </div>
+        </div>
+        <div class="result" id="result">Light Shift: —</div>
+        <canvas id="viewport" width="800" height="500"></canvas>
+        <div class="hint">Incoming light travels perpendicular to the X-axis (vertical). Plate AOI is fixed at 45° relative to surface normal. White background ensures clean iframe embedding.</div>
+    </div>
+
+    <script src="app.js"></script>
+    </body>
+</html>
+
+
