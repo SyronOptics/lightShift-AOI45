@@ -3,42 +3,49 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Light Shift at 45° AOI</title>
+    <title>Lateral Beam Shift Simulator (45° AOI)</title>
     <style>
-        /* Container sized to fit an 800px-wide iframe */
-        .app-container { width: 800px; margin: 0 auto; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color: #111; }
-        .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+        /* Compact container keeps attention on key geometry */
+        .app-container { width: 640px; margin: 0 auto; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color: #111; }
+        .context-box { background: #f7f9fc; border: 1px solid #d9e2ef; border-radius: 6px; padding: 10px 12px; margin: 10px 0 12px; }
+        .context-box p { margin: 0; font-size: 12px; color: #2c3e50; line-height: 1.4; }
+        .controls { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin: 12px 0; }
+        .control-block { display: flex; flex-direction: column; gap: 4px; }
         .control-group { display: flex; align-items: center; gap: 8px; }
         .control-group input[type="number"] { width: 90px; }
+        .help-text { color: #555; font-size: 12px; line-height: 1.3; max-width: 290px; }
         .result { margin: 6px 0 12px 0; font-weight: 600; }
         canvas { display: block; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
         .hint { color: #555; font-size: 12px; }
-        .spacer { flex: 1 1 auto; }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <h2>Light Shift at 45° AOI</h2>
+        <h2>Lateral Beam Shift Simulator (45° AOI)</h2>
+        <div class="context-box">
+            <p><strong>Context:</strong> This simulator models a collimated beam entering a parallel plate at 45° angle of incidence (air -> filter -> air). The output value is lateral beam shift in mm, not wavelength shift.</p>
+        </div>
         <div class="controls">
-            <div class="control-group">
-                <label for="ri">Refractive index n:</label>
-                <input id="ri" type="range" min="1.0" max="2.5" step="0.001" value="1.5">
-                <input id="riNumber" type="number" min="1.0" max="2.5" step="0.001" value="1.5">
+            <div class="control-block">
+                <div class="control-group">
+                    <label for="ri">Refractive index n:</label>
+                    <input id="ri" type="range" min="1.0" max="2.5" step="0.001" value="1.5">
+                    <input id="riNumber" type="number" min="1.0" max="2.5" step="0.001" value="1.5">
+                </div>
+                <div class="help-text">Controls how much the beam bends inside the filter. Typical optical glass is around 1.45 to 1.80.</div>
             </div>
-            <div class="control-group">
-                <label for="thickness">Thickness (mm):</label>
-                <input id="thickness" type="range" min="0" max="50" step="0.1" value="10">
-                <input id="thicknessNumber" type="number" min="0" max="200" step="0.1" value="10">
-            </div>
-            <div class="spacer"></div>
-            <div class="control-group">
-                <label for="scale">Scale (px/mm):</label>
-                <input id="scale" type="number" min="1" max="20" step="1" value="6">
+            <div class="control-block">
+                <div class="control-group">
+                    <label for="thickness">Thickness (mm):</label>
+                    <input id="thickness" type="range" min="0.3" max="10" step="0.1" value="10">
+                    <input id="thicknessNumber" type="number" min="0.3" max="10" step="0.1" value="10">
+                </div>
+                <div class="help-text">Physical plate thickness along the surface normal. Larger thickness produces larger lateral shift.</div>
             </div>
         </div>
         <div class="result" id="result">Light Shift: —</div>
-        <canvas id="viewport" width="800" height="500"></canvas>
-        <div class="hint">Incoming light travels perpendicular to the X-axis (vertical). Plate AOI is fixed at 45° relative to surface normal. White background ensures clean iframe embedding.</div>
+        <canvas id="viewport" width="640" height="380"></canvas>
+        <div class="hint">Diagram guide: dark line = beam path, orange double arrow = lateral shift between incident and emergent beams.</div>
     </div>
 
     <script src="app.js"></script>

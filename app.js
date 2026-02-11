@@ -7,7 +7,6 @@
     const riNumber = document.getElementById('riNumber');
     const tSlider = document.getElementById('thickness');
     const tNumber = document.getElementById('thicknessNumber');
-    const scaleNumber = document.getElementById('scale');
     const resultEl = document.getElementById('result');
 
     const width = canvas.width;
@@ -19,6 +18,7 @@
     // Fixed AOI = 45° relative to surface normal at first interface
     const incidenceAngleDeg = 45;
     const incidenceAngleRad = deg2rad(incidenceAngleDeg);
+    const pxPerMm = 6; // Fixed rendering scale; not user-facing.
 
     // Incoming light perpendicular to X-axis => vertical downwards
     const dIn = { x: 0, y: 1 };
@@ -42,7 +42,6 @@
 
     syncInputs(riSlider, riNumber);
     syncInputs(tSlider, tNumber);
-    scaleNumber.addEventListener('input', draw);
 
     function drawPlate(ctx, c1, c2, colorFill = '#f6f6f7', colorEdge = '#999') {
         // Build a wide quad between two parallel lines defined by nHat·p = c1 and c2
@@ -95,8 +94,9 @@
 
     function draw() {
         const n = Math.max(1.0, parseFloat(riNumber.value));
-        const tMm = Math.max(0, parseFloat(tNumber.value));
-        const pxPerMm = Math.max(1, parseFloat(scaleNumber.value));
+        const tMm = Math.min(10, Math.max(0.3, parseFloat(tNumber.value)));
+        tNumber.value = tMm.toFixed(1);
+        tSlider.value = tMm.toFixed(1);
 
         const tPx = tMm * pxPerMm; // separation along normal between surfaces
 
@@ -163,33 +163,50 @@
         // Display result (only mm)
         resultEl.textContent = `Light Shift: ${shiftMm.toFixed(3)} mm`;
 
-        // Draw a measurement bracket showing the shift
+        // Draw a clear shift marker (guides + double-headed arrow + label).
         ctx.save();
         ctx.strokeStyle = '#e67e22';
         ctx.fillStyle = '#e67e22';
-        ctx.lineWidth = 1.5;
-        const yMeas = Math.min(Math.max(pExit.y + 30, 30), height - 20);
-        // vertical ticks
-        drawTick(xIn, yMeas - 8, yMeas + 8);
-        drawTick(xOut, yMeas - 8, yMeas + 8);
-        // connecting line
+        ctx.lineWidth = 1.8;
+        const yMeas = Math.min(Math.max(pExit.y + 42, 48), height - 24);
+
+        // Dashed guides from each ray to the measurement line.
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(xIn, pEntry.y);
+        ctx.lineTo(xIn, yMeas);
+        ctx.moveTo(xOut, pExit.y);
+        ctx.lineTo(xOut, yMeas);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Double-headed arrow indicating shift distance.
+        const head = 8;
         ctx.beginPath();
         ctx.moveTo(xIn, yMeas);
         ctx.lineTo(xOut, yMeas);
         ctx.stroke();
-        // label
+
+        ctx.beginPath();
+        ctx.moveTo(xIn, yMeas);
+        ctx.lineTo(xIn + head, yMeas - head * 0.6);
+        ctx.lineTo(xIn + head, yMeas + head * 0.6);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(xOut, yMeas);
+        ctx.lineTo(xOut - head, yMeas - head * 0.6);
+        ctx.lineTo(xOut - head, yMeas + head * 0.6);
+        ctx.closePath();
+        ctx.fill();
+
+        // Label centered above measurement arrow.
         ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(`${shiftMm.toFixed(3)} mm`, (xIn + xOut) / 2, yMeas - 6);
+        ctx.fillText(`Shift = ${shiftMm.toFixed(3)} mm`, (xIn + xOut) / 2, yMeas - 7);
         ctx.restore();
-
-        function drawTick(x, y0, y1) {
-            ctx.beginPath();
-            ctx.moveTo(x, y0);
-            ctx.lineTo(x, y1);
-            ctx.stroke();
-        }
 
         function drawNormalMarker(c) {
             // mark a short normal centered at middle of canvas intersection with the line
